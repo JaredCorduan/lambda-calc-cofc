@@ -1,0 +1,494 @@
+\documentclass{beamer}
+
+\usetheme{Warsaw}
+
+\definecolor{Indigo}{rgb}{0.18000, 0.00000, 0.50000}
+\definecolor{jaredBG}{rgb}{0.00000, 0.00000, 0.50000}
+
+\usecolortheme[named=Indigo]{structure}
+\setbeamercolor*{block title example}{fg=white, bg=jaredBG}
+
+\newcommand{\vs}{\\~\\}
+\newcommand{\redexL}[1]{{\color{red} #1}}
+\newcommand{\redexR}[1]{{\color{blue} #1}}
+
+\title[Introduction to the Lambda Calculus]{Introduction to the Lambda Calculus}
+\author[]{Jared Corduan}
+\date{November 5, 2019}
+
+\usepackage{verbatim}
+\usepackage{graphicx}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  These slides are available at:
+  \url{https://github.com/JaredCorduan/lambda-calc-cofc}
+\end{frame}
+
+\begin{frame}{models of computation}
+  What is a computation?
+
+  \begin{itemize}
+    \item $\mu$-recursive functions (1931, G\"odel)
+    \item $\lambda$-calculus (1932, Church)
+    \item Turing machines (1936, Turing)
+    \item flow charts (1947, Goldstine and Von Neumann)
+    \item register machines (1963, Shepherdson and Sturgis)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{formalization}
+  Humans have been using algorithms for a long time.
+
+  Babylonian division algorithms date 2500 BC.
+  \vs
+  We have strong intuition as to what counts as an
+
+  ``effective method".
+  \vs
+  Why was it formalized in the 1930's?
+\end{frame}
+
+\begin{frame}{Explosion of Math in the 1800's}
+  There was an explosion of mathematics in the nineteenth century.
+  \vs
+  In particular, mathematics became much more abstract and less attached to the sciences.
+  \vs
+  Prior to this, proofs were (loosely speaking) constructive, in the sense that a proof of
+  ``for every A there is a B" was a construction of a B from an A.
+  \vs
+  The nineteenth century saw the rise of nonconstructive proofs.
+  It also saw the rise of mathematical logic, especially due to Frege and Peirce.
+\end{frame}
+
+\begin{frame}{What is a good foundation for mathematics?}
+  \begin{itemize}
+    \item potential infinity vs actual infinity
+    \item sets or functions?
+    \item types?
+    \item What constitutes a proof?
+    \item What is an algorithm?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Pricipia}
+  In 1910 Alfred North Whitehead and Bertrand Russell published the Pricipia Mathematica.
+  \vs
+  In this contex, Church introduced the lambda calculus.
+  \vs
+  In 1935, Church use the lambda calculus to give a negative answer to the Entscheidungsproblem in 1935.
+\end{frame}
+
+\begin{frame}{Influence on programming languages}
+  \begin{itemize}
+    \item Lisp
+    \item ALGOL 60
+    \item ML
+    \item Haskell
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Lambda Calculus}
+  In math class, you might see
+  $$f(x, y) = x^2+y$$
+  $$f(1, 2) = 1^2+2$$
+  \uncover<2->{
+  Or
+  $$x,y \mapsto x^2+y$$
+  $$1,2 \mapsto 1^2+2$$
+  $$1 \mapsto 1^2+y$$
+  }
+  \uncover<3->{
+  Consider the lambda notation:
+  $$\lambda x.\lambda y. x^2+y$$
+  $$(\lambda x.\lambda y. x^2+y)(1)=\lambda y.1^2+y$$
+  $$(\lambda y. 1^2+y)(2)=1^2+2$$
+  }
+\end{frame}
+
+\begin{frame}{Lambda Terms}
+  Lambda Terms build up from:
+  \begin{itemize}
+    \item variables: $x$, $y$, $f$, etc
+    \item abstraction: $\lambda x. M$, for a term $M$.
+    \item application $MN$, for terms $M$ and $N$.
+  \end{itemize}
+  \uncover<2>{
+    Examples:\\
+    \begin{math}
+      \begin{array}{rcl}
+          I & = & \lambda x. x \\
+          K & = & \lambda x. \lambda y. x \\
+          S & = & \lambda x.\lambda y. \lambda z.xz(yz) \\
+          \Omega & = & (\lambda x. xx)(\lambda x. xx) \\
+          Y & = & \lambda f.(\lambda x.f(xx))(\lambda x.f(xx)) \\
+      \end{array}
+    \end{math}
+  }
+\end{frame}
+
+\begin{frame}{Substitution:}
+    Substitute $N$ for $x$ in $M$:
+
+    $$M[x:=N]$$
+  \uncover<2->{
+    \vs
+    Caveat emptor:
+    care is needed to define capture-avoiding substitution,
+    to avoid things like
+    $$(\lambda y.x)[y:=x]=\lambda x.x$$
+  }
+\end{frame}
+
+\begin{frame}{Reducible Expressions}
+  A ``reducible expression" or ``redex" is a term of the form:
+  $$(\lambda x.M)N$$
+
+  \uncover<2>{
+    $\beta-$reduction:
+
+    $$(\lambda x.M)N\to_\beta M[x:=N]$$
+  }
+\end{frame}
+
+\begin{frame}{Examples}
+  \begin{center}
+    \begin{math}
+      \begin{array}{rcl}
+        \only<1,4->{
+          SKK & = & (\lambda x.\lambda y. \lambda z.xz(yz))
+                  (\lambda a. \lambda b. a)
+                  (\lambda c. \lambda d. c) \\
+          }
+        \only<2,3>{
+          SKK & = & \redexL{(\lambda x.\lambda y. \lambda z.xz(yz))}
+                  \redexR{(\lambda a. \lambda b. a)}
+                  (\lambda c. \lambda d. c) \\
+          }
+        \only<3>{
+            & \to_\beta
+            & \redexL{\lambda y. \lambda z.}\redexR{(\lambda a. \lambda b. a)}\redexL{z(yz)}
+              (\lambda c. \lambda d. c) \\
+        }
+        \only<4,8->{
+            & \to_\beta
+            & \lambda y. \lambda z.(\lambda a. \lambda b. a)z(yz)(\lambda c. \lambda d. c) \\
+        }
+        \only<5>{
+            & \to_\beta
+            & \lambda y. \lambda z.\redexL{(\lambda a. \lambda b. a)}\redexR{z(yz)}
+              (\lambda c. \lambda d. c) \\
+        }
+        \only<6,7>{
+            & \to_\beta
+            & \redexL{\lambda y. \lambda z.(\lambda a. \lambda b. a)z(yz)}
+              \redexR{(\lambda c. \lambda d. c)} \\
+        }
+        \only<7>{
+            & \to_\beta
+            & \redexL{\lambda z.(\lambda a. \lambda b. a)z(}
+              \redexR{(\lambda c. \lambda d. c)}\redexL{z)} \\
+        }
+        \only<8,10->{
+            & \to_\beta
+            & \lambda z.(\lambda a. \lambda b. a)z
+              ((\lambda c. \lambda d. c)z) \\
+        }
+        \only<9>{
+            & \to_\beta
+            & \lambda z.\redexL{(\lambda a. \lambda b. a)}\redexR{z}
+              ((\lambda c. \lambda d. c)z) \\
+        }
+        \only<9,11->{
+            & \to_\beta & \lambda z.(\lambda b. z)((\lambda c. \lambda d. c)z) \\
+        }
+        \only<10>{
+            & \to_\beta
+            & \lambda z.(\lambda b. z)(\redexL{(\lambda c. \lambda d. c)}\redexR{z}) \\
+        }
+        \only<10,12->{
+            & \to_\beta & \lambda z.(\lambda b. z)(\lambda d. z) \\
+        }
+        \only<11>{
+            & \to_\beta & \lambda z.\redexL{(\lambda b. z)}\redexR{(\lambda d. z)} \\
+        }
+        \only<11->{
+            & \to_\beta & \lambda z.z \\
+        }
+        \only<12->{
+            & = & I \\
+        }
+      \end{array}
+    \end{math}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Examples}
+  \begin{center}
+    \begin{math}
+      \begin{array}{rcl}
+        \Omega & = & (\lambda x. xx)(\lambda x. xx) \\
+        \uncover<2>{
+               & \to_\beta & (\lambda x. xx)(\lambda x. xx)
+        }
+      \end{array}
+    \end{math}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Examples}
+  \begin{center}
+    \begin{math}
+      \begin{array}{rcl}
+        Y & = & \lambda f.(\lambda x.f(xx))(\lambda x.f(xx)) \\
+        \uncover<2->{
+        \\
+        YF & = & (\lambda f.(\lambda x.f(xx))(\lambda x.f(xx)))F \\
+           & \to_\beta & (\lambda x.F(xx))(\lambda x.F(xx)) \\
+           & \to_\beta & F((\lambda x.F(xx))(\lambda x.F(xx))) \\
+        }
+        \uncover<3->{
+        \\
+        F(YF) & = & (\lambda f.(\lambda x.f(xx))(\lambda x.f(xx)))F \\
+              & \to_\beta & F((\lambda x.F(xx))(\lambda x.F(xx))) \\
+        }
+        \uncover<4->{
+        \\
+        YF & \sim_\beta & F(YF)
+        }
+      \end{array}
+    \end{math}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Arithmetic in the Lambda Calculus}
+  \begin{itemize}
+    \item $0 := \lambda f.\lambda x. x$
+    \item $1 := \lambda f.\lambda x. fx$
+    \item $2 := \lambda f.\lambda x. f(fx)$
+  \end{itemize}
+  \begin{itemize}
+    \item $\mathsf{SUCC} := \lambda n.\lambda f.\lambda x. f(n f x)$
+    \item $\mathsf{PLUS} := \lambda m.\lambda n.\lambda f.\lambda x. m f (n f x)$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{One plus one is two!}
+  \begin{center}
+    \begin{math}
+      \begin{array}{rcl}
+        \mathsf{PLUS}~1~1
+          & =
+          & (\lambda m.\lambda n.\lambda f.\lambda x. m f (n f x))
+              (\lambda g.\lambda y. gy)
+              (\lambda h.\lambda z. hz) \\
+        \uncover<2->{
+          & \to_\beta
+          & (\lambda n.\lambda f.\lambda x. (\lambda g.\lambda y. gy)f(n f x))
+              (\lambda h.\lambda z. hz) \\
+          }
+        \uncover<3->{
+          & \to_\beta
+          & \lambda f.\lambda x. (\lambda g.\lambda y. gy)f((\lambda h.\lambda z. hz) f x) \\
+          }
+        \uncover<4->{
+          & \to_\beta
+          & \lambda f.\lambda x. (\lambda y. fy)((\lambda h.\lambda z. hz) f x) \\
+          }
+        \uncover<5->{
+          & \to_\beta
+          & \lambda f.\lambda x. f((\lambda h.\lambda z. hz) f x) \\
+          }
+        \uncover<6->{
+          & \to_\beta
+          & \lambda f.\lambda x. f((\lambda z. fz) x) \\
+          }
+        \uncover<7->{
+          & \to_\beta
+          & \lambda f.\lambda x. f(f x) \\
+          }
+        \uncover<8->{
+          & =
+          & 2
+          }
+      \end{array}
+    \end{math}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Factorial!}
+  \begin{math}
+  \end{math}
+  \\
+  \begin{center}
+    \begin{math}
+      \begin{array}{rcl}
+        \mathsf{fact}~n
+        & =
+        & \begin{cases}
+            1 & n = 0 \\
+            n\cdot\mathsf{fact}(n-1) & \text{otherwise}
+          \end{cases}
+        \\
+        \\
+        \\
+        \mathsf{F}~f~n
+          & =
+          & \mathsf{ite}~(\mathsf{isZero}~n)~\mathsf{one}~(\mathsf{mul}~n~(f(\mathsf{pred}~n)))
+          \\
+        \mathsf{fact}
+          & =
+          & YF
+          \\
+        \mathsf{fact}~n
+          & =
+          & YFn
+          \\
+          & \sim_\beta
+          & F(YF)n
+          \\
+          & =
+          & \mathsf{ite}~(\mathsf{isZero}~n)~\mathsf{one}~(\mathsf{mul}~n~(YF(\mathsf{pred}~n)))
+          \\
+          & =
+          & \mathsf{ite}~(\mathsf{isZero}~n)~\mathsf{one}~(\mathsf{mul}~n~(fact(\mathsf{pred}~n)))
+      \end{array}
+    \end{math}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Primitive Recursion in the Lambda Calculus}
+  Let $f:\mathbb{N}^{k+1}\to\mathbb{N}$ be defined by:
+  \vs
+  \begin{math}
+    \begin{array}{r@{~:=~}l}
+      f(0, n_1, \ldots, n_k) & g(n_1, \ldots, n_k) \\
+      f(n+1, n_1, \ldots, n_k) & h(f(n, n_1, \ldots, n_k), n, n_1, \ldots, n_k)
+    \end{array}
+  \end{math}
+  \vs
+  Define:
+  \vs
+  \begin{math}
+    \begin{array}{r@{~:=~}l}
+      \langle M, N\rangle
+      &
+      \lambda x.x M N
+      \\
+      \pi_1
+      &
+      \lambda p.p(\lambda x.\lambda y.x)
+      \\
+      \pi_2
+      &
+      \lambda p.p(\lambda x.\lambda y.y)
+      \\
+      \mathsf{Init}
+      &
+      \langle 0,G x_1 \ldots x_k \rangle
+      \\
+      \mathsf{Step}
+      &
+      \lambda p.\langle \mathsf{SUCC}(\pi_1 p),H(\pi_2 p)(\pi_1 p)x_1\ldots x_k\rangle
+      \\
+      F
+      &
+      \lambda x.\lambda x_1.\ldots\lambda x_k.\pi_2(x~\mathsf{Step}~\mathsf{Init})
+    \end{array}
+  \end{math}
+
+\end{frame}
+
+\begin{frame}{Logic in the Lambda Calculus}
+  \begin{itemize}
+    \item $\mathsf{true} := \lambda x.\lambda y. x$
+    \item $\mathsf{false} := \lambda x.\lambda y. y$
+    \item $\mathsf{and} := \lambda p.\lambda q. pqp$
+    \item $\mathsf{or} := \lambda p.\lambda q. ppq$
+    \item $\mathsf{not} := \lambda p.p~\mathsf{false}~\mathsf{true}$
+    \item $\mathsf{ite} := \lambda p.\lambda a.\lambda b.p a b$
+  \end{itemize}
+  \uncover<2->{
+  Example:
+  \begin{center}
+    \begin{math}
+      \begin{array}{rcl}
+        \mathsf{and}~\mathsf{true}~\mathsf{false}
+          & =
+          & (\lambda p.\lambda q. pqp)(\lambda x.\lambda y. x)(\lambda w.\lambda z. z) \\
+        }
+        \uncover<3->{
+          & \to_\beta
+          & (\lambda q. (\lambda x.\lambda y. x)q(\lambda x.\lambda y. x))
+            (\lambda w.\lambda z. z) \\
+          }
+        \uncover<4->{
+          & \to_\beta
+          & (\lambda x.\lambda y. x)(\lambda w.\lambda z. z)(\lambda x.\lambda y. x) \\
+          }
+        \uncover<5->{
+          & \to_\beta
+          & (\lambda y. \lambda w.\lambda z. z)(\lambda x.\lambda y. x) \\
+          }
+        \uncover<6->{
+          & \to_\beta
+          & \lambda w.\lambda z. z \\
+          }
+        \uncover<7->{
+          & =
+          & \mathsf{false}
+          }
+      \end{array}
+    \end{math}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Normal Form}
+  An lambda expression without a redex is called a \textbf{normal form}.
+  \begin{itemize}
+    \item We know they do not always exist (such as with $\Omega$).
+    \item Are they unique?
+    \item Does it matter how you chose each redex?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Church-Rosser}
+  \begin{theorem}
+    Given $$P\twoheadrightarrow_\beta P'$$
+          $$P\twoheadrightarrow_\beta P''$$
+
+    There is a $Q$ such that
+
+    $$P\twoheadrightarrow_\beta P'\twoheadrightarrow_\beta Q$$
+    $$P\twoheadrightarrow_\beta P''\twoheadrightarrow_\beta Q$$
+
+  \end{theorem}
+  \uncover<2>{
+    Therefore normal forms are unique when they exist.
+  }
+\end{frame}
+
+\begin{frame}{Reduction Strategies}
+  \begin{itemize}
+    \item Call by Value - reduce the leftmost innermost redex first.
+    \item Call by Name - reduce the leftmost outermost redex first.
+    \item Call by Need - optimization of call by name.
+  \end{itemize}
+  \uncover<2>{
+    \begin{theorem}
+       Call by Name will always find the normal form if it exists.
+    \end{theorem}
+  }
+\end{frame}
+
+\begin{frame}
+  \centering
+  thank you for listening!
+\end{frame}
+
+\end{document}
