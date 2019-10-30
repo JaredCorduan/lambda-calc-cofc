@@ -18,6 +18,16 @@
 
 \usepackage{verbatim}
 \usepackage{graphicx}
+\usepackage{tikz-cd}
+\usepackage{tikzsymbols}
+
+\tikzset{
+  invisible/.style={opacity=0},
+  visible on/.style={alt={#1{}{invisible}}},
+  alt/.code args={<#1>#2#3}{%
+    \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}}%
+  }
+}
 
 \begin{document}
 
@@ -34,8 +44,9 @@
   What is a computation?
 
   \begin{itemize}
-    \item $\mu$-recursive functions (1931, G\"odel)
-    \item $\lambda$-calculus (1932, Church)
+    \item $\lambda$-calculus (1935, Church)
+    \item $\mu$-recursive functions (1935, G\"odel)
+    \item Post machines (1936, Post)
     \item Turing machines (1936, Turing)
     \item flow charts (1947, Goldstine and Von Neumann)
     \item register machines (1963, Shepherdson and Sturgis)
@@ -107,7 +118,7 @@
 \begin{frame}{Lambda Terms}
   Lambda Terms build up from:
   \begin{itemize}
-    \item variables: $x$, $y$, $f$, etc
+    \item variables: $x$, $y$, $f$, \Coffeecup, etc
     \item abstraction: $\lambda x. M$, for a term $M$.
     \item application $MN$, for terms $M$ and $N$.
   \end{itemize}
@@ -116,6 +127,7 @@
     \begin{math}
       \begin{array}{rcl}
           I & = & \lambda x. x \\
+          I & = & \lambda \Coffeecup. \Coffeecup \\
           K & = & \lambda x. \lambda y. x \\
           S & = & \lambda x.\lambda y. \lambda z.xz(yz) \\
           \Omega & = & (\lambda x. xx)(\lambda x. xx) \\
@@ -130,6 +142,12 @@
 
     $$M[x:=N]$$
   \uncover<2->{
+    $$x\Strichmaxerl{x}[x:=\Coffeecup]~=~
+  }
+  \uncover<3->{
+    \Coffeecup\Strichmaxerl\Coffeecup$$
+  }
+  \uncover<4->{
     \vs
     Caveat emptor:
     care is needed to define capture-avoiding substitution,
@@ -142,10 +160,16 @@
   A ``reducible expression" or ``redex" is a term of the form:
   $$(\lambda x.M)N$$
 
-  \uncover<2>{
+  \uncover<2->{
     $\beta-$reduction:
 
     $$(\lambda x.M)N\to_\beta M[x:=N]$$
+  }
+  \uncover<3->{
+    $$(\lambda x.x\Strichmaxerl{x})~\Coffeecup~~\to_\beta~~
+  }
+  \uncover<4->{
+    \Coffeecup~\Strichmaxerl~\Coffeecup$$
   }
 \end{frame}
 
@@ -321,6 +345,11 @@
   \begin{center}
     \begin{math}
       \begin{array}{rcl}
+        7! & = & 7\cdot 6\cdot 5\cdot 4\cdot 3\cdot 2\cdot 1
+        \\
+        \\
+        \\
+        \uncover<2->{
         \mathsf{fact}~n
         & =
         & \begin{cases}
@@ -330,71 +359,42 @@
         \\
         \\
         \\
+        }
+        \uncover<3->{
         \mathsf{F}~f~n
           & =
           & \mathsf{ite}~(\mathsf{isZero}~n)~\mathsf{one}~(\mathsf{mul}~n~(f(\mathsf{pred}~n)))
           \\
+        }
+        \uncover<4->{
         \mathsf{fact}
           & =
           & YF
           \\
+        }
+        \uncover<5->{
         \mathsf{fact}~n
           & =
           & YFn
           \\
+        }
+        \uncover<6->{
           & \sim_\beta
           & F(YF)n
           \\
+        }
+        \uncover<7->{
           & =
           & \mathsf{ite}~(\mathsf{isZero}~n)~\mathsf{one}~(\mathsf{mul}~n~(YF(\mathsf{pred}~n)))
+        }
+        \uncover<8->{
           \\
           & =
           & \mathsf{ite}~(\mathsf{isZero}~n)~\mathsf{one}~(\mathsf{mul}~n~(fact(\mathsf{pred}~n)))
+        }
       \end{array}
     \end{math}
   \end{center}
-\end{frame}
-
-\begin{frame}{Primitive Recursion in the Lambda Calculus}
-  Let $f:\mathbb{N}^{k+1}\to\mathbb{N}$ be defined by:
-  \vs
-  \begin{math}
-    \begin{array}{r@{~:=~}l}
-      f(0, n_1, \ldots, n_k) & g(n_1, \ldots, n_k) \\
-      f(n+1, n_1, \ldots, n_k) & h(f(n, n_1, \ldots, n_k), n, n_1, \ldots, n_k)
-    \end{array}
-  \end{math}
-  \vs
-  Define:
-  \vs
-  \begin{math}
-    \begin{array}{r@{~:=~}l}
-      \langle M, N\rangle
-      &
-      \lambda x.x M N
-      \\
-      \pi_1
-      &
-      \lambda p.p(\lambda x.\lambda y.x)
-      \\
-      \pi_2
-      &
-      \lambda p.p(\lambda x.\lambda y.y)
-      \\
-      \mathsf{Init}
-      &
-      \langle 0,G x_1 \ldots x_k \rangle
-      \\
-      \mathsf{Step}
-      &
-      \lambda p.\langle \mathsf{SUCC}(\pi_1 p),H(\pi_2 p)(\pi_1 p)x_1\ldots x_k\rangle
-      \\
-      F
-      &
-      \lambda x.\lambda x_1.\ldots\lambda x_k.\pi_2(x~\mathsf{Step}~\mathsf{Init})
-    \end{array}
-  \end{math}
-
 \end{frame}
 
 \begin{frame}{Logic in the Lambda Calculus}
@@ -450,19 +450,23 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Church-Rosser}
+\begin{frame}[fragile]{Church-Rosser}
   \begin{theorem}
-    Given $$P\twoheadrightarrow_\beta P'$$
-          $$P\twoheadrightarrow_\beta P''$$
-
-    There is a $Q$ such that
-
-    $$P\twoheadrightarrow_\beta P'\twoheadrightarrow_\beta Q$$
-    $$P\twoheadrightarrow_\beta P''\twoheadrightarrow_\beta Q$$
-
+    Given terms $X$, $Y_1$, and $Y_2$ such that:
+    \[
+      \begin{tikzcd}
+        X \arrow[r, two heads] \arrow[d, two heads]
+      & Y_1 \arrow[visible on=<2->, d, two heads] \\
+      Y_2 \arrow[visible on=<2->, r, two heads]
+      & {\uncover<2->{Z}}
+      \end{tikzcd}
+    \]
+    \uncover<2->{There exists a $Z$ as above.}
   \end{theorem}
-  \uncover<2>{
-    Therefore normal forms are unique when they exist.
+  \uncover<3>{
+  \begin{corollary}
+    Normal forms are unique when they exist.
+  \end{corollary}
   }
 \end{frame}
 
@@ -477,6 +481,12 @@
        Call by Name will always find the normal form if it exists.
     \end{theorem}
   }
+\end{frame}
+
+\begin{frame}{Python Examples}
+
+  { \scriptsize
+  \url{https://github.com/JaredCorduan/lambda-calc-cofc/blob/master/lambda.py} }
 \end{frame}
 
 \begin{frame}{Final Takeaway}
@@ -503,6 +513,48 @@
 \begin{frame}
   \centering
   thank you for listening!
+\end{frame}
+
+\begin{frame}{Primitive Recursion in the Lambda Calculus}
+  Let $f:\mathbb{N}^{k+1}\to\mathbb{N}$ be defined by:
+  \vs
+  \begin{math}
+    \begin{array}{r@{~:=~}l}
+      f(0, n_1, \ldots, n_k) & g(n_1, \ldots, n_k) \\
+      f(n+1, n_1, \ldots, n_k) & h(f(n, n_1, \ldots, n_k), n, n_1, \ldots, n_k)
+    \end{array}
+  \end{math}
+  \vs
+  Define:
+  \vs
+  \begin{math}
+    \begin{array}{r@{~:=~}l}
+      \langle M, N\rangle
+      &
+      \lambda x.x M N
+      \\
+      \pi_1
+      &
+      \lambda p.p(\lambda x.\lambda y.x)
+      \\
+      \pi_2
+      &
+      \lambda p.p(\lambda x.\lambda y.y)
+      \\
+      \mathsf{Init}
+      &
+      \langle 0,G x_1 \ldots x_k \rangle
+      \\
+      \mathsf{Step}
+      &
+      \lambda p.\langle \mathsf{SUCC}(\pi_1 p),H(\pi_2 p)(\pi_1 p)x_1\ldots x_k\rangle
+      \\
+      F
+      &
+      \lambda x.\lambda x_1.\ldots\lambda x_k.\pi_2(x~\mathsf{Step}~\mathsf{Init})
+    \end{array}
+  \end{math}
+
 \end{frame}
 
 \end{document}

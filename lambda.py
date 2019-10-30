@@ -1,6 +1,12 @@
 # Predicate Logic
 
 TRUE = lambda x: lambda y: x
+
+def PyTRUE (x):
+    def f(y):
+        return x
+    return f
+
 FALSE = lambda x: lambda y: y
 AND = lambda p: lambda q: (p)(q)(p)
 OR = lambda p: lambda q: (p)(p)(q)
@@ -10,6 +16,7 @@ to_bool = lambda b: (b)('true')('false') == 'true'
 
 print( "\n-- predicate logic --\n")
 print( "TRUE AND FALSE      ->", to_bool((AND)(TRUE)(FALSE)) )
+print( "PyTRUE AND FALSE    ->", to_bool((AND)(PyTRUE)(FALSE)) )
 print( "FALSE AND TRUE      ->", to_bool((AND)(FALSE)(TRUE)) )
 print( "FALSE OR TRUE       ->", to_bool((OR)(FALSE)(TRUE)) )
 print( "NOT (FALSE OR TRUE) ->", to_bool((NOT)(OR)(FALSE)(TRUE)) )
@@ -73,7 +80,7 @@ print( "FOUR + NEG_ONE ->", to_int(INT_ADD(POS_FOUR)(NEG_ONE)) )
 
 # Fixed-point combinators 
 
-# Y combinator wont work in any call-by-name language
+# Y combinator wont work in any call-by-value language
 Y = lambda g: (lambda x: g((x)(x)))(lambda x: g((x)(x)))
 
 # But the Z combinator will!
