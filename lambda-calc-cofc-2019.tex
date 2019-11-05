@@ -258,31 +258,6 @@
   \end{center}
 \end{frame}
 
-\begin{frame}{Examples}
-  \begin{center}
-    \begin{math}
-      \begin{array}{rcl}
-        Y & = & \lambda f.(\lambda x.f(xx))(\lambda x.f(xx)) \\
-        \uncover<2->{
-        \\
-        YF & = & (\lambda f.(\lambda x.f(xx))(\lambda x.f(xx)))F \\
-           & \to_\beta & (\lambda x.F(xx))(\lambda x.F(xx)) \\
-           & \to_\beta & F((\lambda x.F(xx))(\lambda x.F(xx))) \\
-        }
-        \uncover<3->{
-        \\
-        F(YF) & = & (\lambda f.(\lambda x.f(xx))(\lambda x.f(xx)))F \\
-              & \to_\beta & F((\lambda x.F(xx))(\lambda x.F(xx))) \\
-        }
-        \uncover<4->{
-        \\
-        YF & \sim_\beta & F(YF)
-        }
-      \end{array}
-    \end{math}
-  \end{center}
-\end{frame}
-
 \begin{frame}{Arithmetic in the Lambda Calculus}
   \begin{itemize}
     \item $0 := \lambda f.\lambda x. x$
@@ -333,6 +308,31 @@
           & =
           & 2
           }
+      \end{array}
+    \end{math}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Examples}
+  \begin{center}
+    \begin{math}
+      \begin{array}{rcl}
+        Y & = & \lambda f.(\lambda x.f(xx))(\lambda x.f(xx)) \\
+        \uncover<2->{
+        \\
+        YF & = & (\lambda f.(\lambda x.f(xx))(\lambda x.f(xx)))F \\
+           & \to_\beta & (\lambda x.F(xx))(\lambda x.F(xx)) \\
+           & \to_\beta & F((\lambda x.F(xx))(\lambda x.F(xx))) \\
+        }
+        \uncover<3->{
+        \\
+        F(YF) & = & (\lambda f.(\lambda x.f(xx))(\lambda x.f(xx)))F \\
+              & \to_\beta & F((\lambda x.F(xx))(\lambda x.F(xx))) \\
+        }
+        \uncover<4->{
+        \\
+        YF & \sim_\beta & F(YF)
+        }
       \end{array}
     \end{math}
   \end{center}
